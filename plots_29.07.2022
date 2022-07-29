@@ -1,0 +1,133 @@
+import numpy as np
+import matplotlib.pyplot as mat
+
+class Data:
+    def __init__(self, x = [], y = [], xr = 0.0 , yr = 0.0 , grid = "yes", x_label_name = "x" , y_label_name = "y" , title = "y(x)" , scatter_title = "y(x)"):
+
+
+        #data assertion
+        assert xr >= 0, f"X_error {xr} must be greater than zero"
+        assert yr >= 0, f"Y_error {yr} must be greater than zero"
+        assert type(grid) == str, f"Grid {grid} must be yes or no"
+        assert type(x_label_name) == str, f"Label {x_label_name} name must be a string"
+        assert type(y_label_name) == str, f"Label {y_label_name} name must be a string"
+        assert type(title) == str, f"Title {title} must be a string"
+        assert type(scatter_title) == str, f"Scatter title {scatter_title} must be a string"
+
+
+        #data initialization
+        self.x = x
+        self.y = y
+        self.xr = xr
+        self.yr = yr
+        self.grid = grid
+        self.y_label_name = y_label_name
+        self.x_label_name = x_label_name
+        self.title = title
+        self.scatter_title = scatter_title
+
+
+        #ticks introduction
+        self.x_min = min(self.x)
+        self.y_min = min(self.y)
+        self.x_max = max(self.x)
+        self.y_max = max(self.y)
+
+
+        #setting minimal value shown on x axis
+        if self.x_min >0:
+            self.x_min =0.8 * self.x_min
+        elif self.x_min<0:
+            self.x_min =1.2 * self.x_min
+        else:
+            self.x_min = -2
+
+        #setting minimal value shown on y axis
+
+        if self.y_min >0:
+            self.y_min =0.8 * self.y_min
+        elif self.y_min <0:
+            self.y_min = 1.2 * self.y_min
+        else:
+            self.y_min = -2
+
+        #setting maximal values on x and y axises
+
+        if self.x_max >0:
+            self.x_max = 1.2*self.x_max
+        elif self.x_max <0:
+            self.x_max = 0.8*self.x_max
+        else:
+            self.x_max = 2
+
+
+        if self.y_max >0:
+            self.y_max = 1.2*self.y_max
+        elif self.y_max<0:
+            self.y_max = 0,8*self.y_max
+        else:
+            self.y_max = 2
+
+        #setting ticks space for y axis
+
+        if self.y_max>0 and self.y_min>0:
+            self.major_y_ticks = np.arange(self.y_min, self.y_max, 0.1*(self.y_max-self.y_min))
+            self.minor_y_ticks = np.arange(self.y_min, self.y_max, 0.05*(self.y_max-self.y_min))
+        elif self.y_max<0 and self.y_min<0:
+            self.major_y_ticks = np.arange(self.y_min, self.y_max , 0.1*(abs(self.y_max)-abs(self.y_min)))
+            self.minor_y_ticks = np.arange(self.y_min, self.y_max , 0.05*(abs(self.y_max)-abs(self.y_min)))
+        else:
+            self.major_y_ticks = np.arange(self.y_min , self.y_max , 0.1*(abs(self.y_max)+abs(self.y_min)))
+            self.minor_y_ticks = np.arange(self.y_min , self.y_max , 0.05*(abs(self.y_max)+abs(self.y_min)))
+
+        #setting ticks space for x axis
+
+        if self.x_max>0 and self.x_min>0:
+            self.major_x_ticks = np.arange(self.x_min, self.x_max, 0.1*(self.x_max-self.x_min))
+            self.minor_x_ticks = np.arange(self.x_min, self.x_max, 0.05*(self.x_max-self.x_min))
+        elif self.x_max<0 and self.x_min<0:
+            self.major_x_ticks = np.arange(self.x_min, self.x_max , 0.1*(abs(self.x_max)-abs(self.x_min)))
+            self.minor_x_ticks = np.arange(self.x_min, self.x_max , 0.05*(abs(self.x_max)-abs(self.x_min)))
+        else:
+            self.major_x_ticks = np.arange(self.x_min , self.x_max , 0.1*(abs(self.x_max)+abs(self.x_min)))
+            self.minor_x_ticks = np.arange(self.x_min , self.x_max , 0.05*(abs(self.x_max)+abs(self.x_min)))
+
+
+
+
+
+
+
+    def scatter(self):
+        #figure creation
+        fig = mat.figure()
+        ax = fig.add_subplot(1,1,1)
+
+        #ticks
+        ax.set_xticks(self.major_x_ticks)
+        ax.set_xticks(self.minor_x_ticks, minor = True)
+        ax.set_yticks(self.major_y_ticks)
+        ax.set_yticks(self.minor_y_ticks, minor = True)
+
+        #setting grid
+        ax.grid(which = 'both')
+        ax.grid(which='minor', alpha=0.2)
+        ax.grid(which='major', alpha=0.5)
+
+
+        #generating scatter
+        mat.scatter(self.x, self.y, s = 10, c='black', label = self.scatter_title)
+        mat.errorbar(self.x, self.y,yerr=self.yr , xerr= self.xr, fmt = ",", ecolor='red',
+                     label = f"err {self.x_label_name} = {self.xr}\nerr {self.y_label_name} = {self.yr}")
+
+        mat.xlabel(self.x_label_name)
+        mat.ylabel(self.y_label_name)
+        mat.title(self.title)
+        mat.legend(loc = "upper left")
+        mat.show()
+
+x = [1,2,3,4]
+y = [1,2,3,4]
+
+d1 = Data(x,y)
+d1.scatter()
