@@ -1,0 +1,259 @@
+import numpy as np
+import matplotlib.pyplot as mat
+
+class Data:
+    def __init__(self, x = [], y = [], xr = 0.0 , yr = 0.0 , grid = "yes", x_label_name = "x" , y_label_name = "y" , title = "y(x)" , scatter_title = "y(x)"):
+
+
+        #data assertion
+        if type(xr)!=list:
+            assert xr >= 0, f"X_error {xr} must be greater than zero"
+        if type(yr)!=list:
+            assert yr >= 0, f"Y_error {yr} must be greater than zero"
+        assert type(grid) == str, f"Grid {grid} must be yes or no"
+        assert type(x_label_name) == str, f"Label {x_label_name} name must be a string"
+        assert type(y_label_name) == str, f"Label {y_label_name} name must be a string"
+        assert type(title) == str, f"Title {title} must be a string"
+        assert type(scatter_title) == str, f"Scatter title {scatter_title} must be a string"
+
+
+        #data initialization
+        self.__x = x
+        self.__y = y
+        self.__xr = xr
+        self.__yr = yr
+        self.__grid = grid
+        self.__y_label_name = y_label_name
+        self.__x_label_name = x_label_name
+        self.__title = title
+        self.__scatter_title = scatter_title
+
+
+        #ticks introduction
+        self.__x_min = min(self.__x)
+        self.__y_min = min(self.__y)
+        self.__x_max = max(self.__x)
+        self.__y_max = max(self.__y)
+
+
+        #setting minimal value shown on x axis
+        if self.__x_min >0:
+            self.__x_min = 0.8 * self.__x_min
+        elif self.__x_min<0:
+            self.__x_min = 1.2 * self.__x_min
+        else:
+            self.__x_min = -2
+
+        #setting minimal value shown on y axis
+
+        if self.__y_min >0:
+            self.__y_min = 0.8 * self.__y_min
+        elif self.__y_min <0:
+            self.__y_min = 1.2 * self.__y_min
+        else:
+            self.__y_min = -2
+
+        #setting maximal values on x and y axises
+
+        if self.__x_max >0:
+            self.__x_max = 1.2 * self.__x_max
+        elif self.__x_max <0:
+            self.__x_max = 0.8 * self.__x_max
+        else:
+            self.__x_max = 2
+
+
+        if self.__y_max >0:
+            self.__y_max = 1.2 * self.__y_max
+        elif self.__y_max<0:
+            self.__y_max = 0, 8 * self.__y_max
+        else:
+            self.__y_max = 2
+
+        #setting ticks space for y axis
+
+        if self.__y_max>0 and self.__y_min>0:
+            self.__major_y_ticks = np.arange(self.__y_min, self.__y_max, 0.1 * (self.__y_max - self.__y_min))
+            self.__minor_y_ticks = np.arange(self.__y_min, self.__y_max, 0.05 * (self.__y_max - self.__y_min))
+        elif self.__y_max<0 and self.__y_min<0:
+            self.__major_y_ticks = np.arange(self.__y_min, self.__y_max, 0.1 * (abs(self.__y_max) - abs(self.__y_min)))
+            self.__minor_y_ticks = np.arange(self.__y_min, self.__y_max, 0.05 * (abs(self.__y_max) - abs(self.__y_min)))
+        else:
+            self.__major_y_ticks = np.arange(self.__y_min, self.__y_max, 0.1 * (abs(self.__y_max) + abs(self.__y_min)))
+            self.__minor_y_ticks = np.arange(self.__y_min, self.__y_max, 0.05 * (abs(self.__y_max) + abs(self.__y_min)))
+
+        #setting ticks space for x axis
+
+        if self.__x_max>0 and self.__x_min>0:
+            self.__major_x_ticks = np.arange(self.__x_min, self.__x_max, 0.1 * (self.__x_max - self.__x_min))
+            self.__minor_x_ticks = np.arange(self.__x_min, self.__x_max, 0.05 * (self.__x_max - self.__x_min))
+        elif self.__x_max<0 and self.__x_min<0:
+            self.__major_x_ticks = np.arange(self.__x_min, self.__x_max, 0.1 * (abs(self.__x_max) - abs(self.__x_min)))
+            self.__minor_x_ticks = np.arange(self.__x_min, self.__x_max, 0.05 * (abs(self.__x_max) - abs(self.__x_min)))
+        else:
+            self.__major_x_ticks = np.arange(self.__x_min, self.__x_max, 0.1 * (abs(self.__x_max) + abs(self.__x_min)))
+            self.__minor_x_ticks = np.arange(self.__x_min, self.__x_max, 0.05 * (abs(self.__x_max) + abs(self.__x_min)))
+
+
+
+    # Font definition
+    # all
+    mat.rc('font', size=32)
+    # main title
+    mat.rc('axes', titlesize=32)
+    # axis title
+    mat.rc('axes', labelsize=20)
+    # axis X
+    mat.rc('xtick', labelsize=16)
+    # axis Y
+    mat.rc('ytick', labelsize=16)
+    # legend
+    mat.rc('legend', fontsize=20)
+    # DOn't know
+    mat.rc('figure', titlesize=1)
+
+    def __sum_two(self, war = [], a = [], b = []):
+        result = 0
+        if len(war)==len(a) and len(war)==len(b):
+            for i in range(len(war)):
+                result += a[i]*b[i]/war[i]**2
+        elif len(a)==0 and len(b)==0:
+            for i in range(len(war)):
+                result += 1/war[i]**2
+        elif len(war)==len(a) and len(b)==0:
+            for i in range(len(war)):
+                result += a[i]/war[i]**2
+        elif len(war)==len(b) and len(a)==0:
+            for i in range(len(war)):
+                result += b[i]/war[i]**2
+        return result
+
+
+    def scatter(self):
+        #figure creation
+        fig = mat.figure()
+        ax = fig.add_subplot(1,1,1)
+        if self.__grid == "yes":
+            #ticks
+            ax.set_xticks(self.__major_x_ticks)
+            ax.set_xticks(self.__minor_x_ticks, minor = True)
+            ax.set_yticks(self.__major_y_ticks)
+            ax.set_yticks(self.__minor_y_ticks, minor = True)
+
+            #setting grid
+            ax.grid(which = 'both')
+            ax.grid(which='minor', alpha=0.2)
+            ax.grid(which='major', alpha=0.5)
+
+
+        #generating scatter
+        mat.scatter(self.__x, self.__y, s = 10, c='black', label = self.__scatter_title)
+        if type(self.__yr)!=list:
+            mat.errorbar(self.__x, self.__y, yerr=self.__yr, xerr=self.__xr, fmt=",", ecolor='red',
+                        label=f"err {self.__x_label_name} = {self.__xr}\nerr {self.__y_label_name} = {self.__yr}")
+        else:
+            mat.errorbar(self.__x, self.__y, yerr=self.__yr, xerr=self.__xr, fmt=",", ecolor='red',
+                         label=f"err {self.__x_label_name}\nerr {self.__y_label_name}")
+
+        mat.xlabel(self.__x_label_name)
+        mat.ylabel(self.__y_label_name)
+        mat.title(self.__title)
+        mat.legend(loc = "upper left")
+        mat.show()
+
+
+
+
+
+    def lin_reg(self):
+        #defining basic values
+        n = len(self.__x)
+        sx = 0;sy = 0;sxx = 0;sxy = 0 ;syy = 0;s=0
+        if type(self.__yr)!=list:
+            for i in range(n):
+                sx+=self.__x[i]
+                sy+=self.__y[i]
+                sxx+= self.__x[i]**2
+                sxy+=self.__x[i]*self.__y[i]
+                syy+=self.__y[i]**2
+
+            delta = n *sxx - sx**2
+
+            #linear coefficients
+            a = (n*sxy-sx*sy)/delta
+            b = (sxx*sy-sx*sxy)/delta
+
+            #errors
+            e_a = np.sqrt((n*self.__yr**2)/(delta*(n-2)))
+            e_b = np.sqrt(e_a**2*sxx/n)
+
+        elif type(self.__yr)==list:
+            for i in range(n):
+                s+=1/self.__yr[i]**2
+                sx+=self.__x[i]/self.__yr[i]**2
+                sy+=self.__y[i]/self.__yr[i]**2
+                sxx+=self.__x[i]**2/self.__yr[i]**2
+                sxy+=self.__x[i]*self.__y[i]/self.__yr[i]**2
+
+            delta = s*sxx-sx**2
+
+            #linear coefficients
+            a = (s*sxy-sx*sy)/delta
+            b = (sxx*sy-sx*sxy)/delta
+
+            #errors
+            e_a = np.sqrt(s/delta)
+            e_b = np.sqrt(sxx/delta)
+
+
+
+        #defining space
+        space = np.linspace(self.__x_min,self.__x_max)
+
+        #plotting
+
+        # figure creation
+        fig = mat.figure()
+        ax = fig.add_subplot(1, 1, 1)
+        if self.__grid == "yes":
+            # ticks
+            ax.set_xticks(self.__major_x_ticks)
+            ax.set_xticks(self.__minor_x_ticks, minor=True)
+            ax.set_yticks(self.__major_y_ticks)
+            ax.set_yticks(self.__minor_y_ticks, minor=True)
+
+            # setting grid
+            ax.grid(which='both')
+            ax.grid(which='minor', alpha=0.2)
+            ax.grid(which='major', alpha=0.5)
+
+
+        print(f"ax+b:\na={a}+-{e_a}\nb={b}+-{e_b}\nequation={a}*x+{b}")
+        # generating scatter
+        mat.scatter(self.__x, self.__y, s=10, c='black', label=self.__scatter_title)
+        mat.plot(space, a * space + b, c="blue", label=f'{a}x+{b}\na_er={e_a}\nb_er={e_b}', linestyle='--')
+        if type(self.__yr)!=list:
+            mat.errorbar(self.__x, self.__y, yerr=self.__yr, xerr=self.__xr, fmt=",", ecolor='red',
+                        label=f"err {self.__x_label_name} = {self.__xr}\nerr {self.__y_label_name} = {self.__yr}")
+        else:
+            mat.errorbar(self.__x, self.__y, yerr=self.__yr, xerr=self.__xr, fmt=",", ecolor='red',
+                         label=f"err {self.__x_label_name}\nerr {self.__y_label_name}")
+        mat.xlabel(self.__x_label_name)
+        mat.ylabel(self.__y_label_name)
+        mat.title(self.__title)
+        mat.legend(loc="upper left")
+        mat.show()
+
+
+    def __repr__(self):
+        return f"{self.__class__.__name__}( x = {self.__x}, y = {self.__y}, xr = {self.__xr} , yr = {self.__yr}, grid = {self.__grid}," \
+               f" x_label_name = {self.__x_label_name}, " \
+               f"y_label_name = {self.__y_label_name}, title = {self.__title} , scatter_title = {self.__scatter_title})"
+
+x = [1,2,3,4]
+y = [1,2,3,4]
+dx = [0.1,0.1,0.1,0.1];dy = [0.1,0.2,0.3,0.4]
+d1 = Data(x,y,dx,dy)
+d1.scatter()
+print(d1)
+d1.lin_reg()
